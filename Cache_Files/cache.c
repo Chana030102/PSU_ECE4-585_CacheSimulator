@@ -11,16 +11,66 @@
 
 /* cache functions */
 
-int get_byte_select(int* bin_address,int* byte_sel_tag,
-		    int byte_sel_size)
+/*
+*	Store Tag / Index / ByteSelect
+*
+*
+*/
+int get_tag_bits
+(
+	int* bin,
+	int* tag_p,
+	int* index_p,
+	int* bs_p, 
+	int tag, 
+	int index, 
+	int bs
+)
 {
-for(int i = 31; i > (31 - byte_sel_size); i--)
+	printf("Tag / Index / ByteSelect\n");
+	for(int i = 0; i < tag; i++)
+	{
+		tag_p[i] = bin[i];
+		printf("%d",tag_p[i]);
+	}
+	printf(" / ");
+	for(int i = tag; i < (index + tag); i++)
+	{
+		index_p[i - tag] = bin[i];
+		printf("%d",index_p[i-tag]);
+	}
+	printf(" / ");
+	for(int i = (tag + index); i < BIN; i++)
+	{
+		bs_p[i-(tag+index)] = bin[i];
+		printf("%d",bs_p[i-(tag+index)]);
+	}
+	printf("\n");
+return 0;
+} 
+
+/*
+*	Print Address in Hex and Binary
+*
+*
+*/
+int print_address(char* hex, int* bin)
 {
-	byte_sel_tag[i-25] = bin_address[i];
-}
+	printf("Hex Address: %s\n",hex);
+	printf("Binary Address: ");
+	for(int i = 0; i < BIN; i++)
+	{
+		printf("%d",bin[i]);
+	}
+	printf("\n");
 return 0;
 }
 
+/*
+*	Converts Hex Array to Binary Int Array
+*
+*
+*/
 int hex_to_bin(char* hex, int* binary,int size)
 {
 int j = 0;
@@ -136,19 +186,20 @@ for(int i = 0; i < size; i++)
 return 0;
 } 
 
-int test_struct(struct cache_set* s_cache)
-{	
-	s_cache[0].valid[0] = 1;
-	s_cache[0].dirty[0] = 1;
-	s_cache[0].tag[0] = "ABCDEFG";
-return 0;
-}
+/*
+*	Print Contents of Cache Set (Specify Way)
+*
+*/
 
-int print_struct(struct cache_set* s_cache)
+int print_cache_set(struct cache_set* s_cache, int set, int way)
 {
-	printf("cache valid = %d\n",s_cache[0].valid[0]);
-	printf("cache dirty = %d\n",s_cache[0].dirty[0]);
-	printf("cache tag = %s\n",s_cache[0].tag[0]);
+	printf("cache valid: %d\n",s_cache[set].valid[way]);
+	printf("cache dirty: %d\n",s_cache[set].dirty[way]);
+	printf("cache tag for way [%d]: ",way);
+	for(int i = 0; i < cache_tag; i++)
+	{
+		printf("%d",s_cache[set].tag[way][i]);
+	}
 return 0;
 }
 

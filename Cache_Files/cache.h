@@ -15,7 +15,7 @@ struct cache_set
 	int valid[MAX];
 	int dirty[MAX];
 	int LRU[MAX];
-	const char* tag[MAX];
+	const int* tag[MAX];
 };
 
 /* global variables */
@@ -23,12 +23,13 @@ struct cache_set
 static int cache_ways;
 static int cache_index;
 static int byte_select;
+static int cache_tag;
 
 /* cache.c function declarations */
 
-int get_byte_select(int*,int*,int);
+int get_tag_bits(int*,int*,int*,int*,int,int,int);
+int print_address(char*,int*);
 int hex_to_bin(char*,int*,int);
-int test_struct(struct cache_set*);
-int print_struct(struct cache_set*);
+int print_cache_set(struct cache_set*,int,int);
 
 
