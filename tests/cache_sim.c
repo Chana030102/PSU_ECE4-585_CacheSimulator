@@ -17,7 +17,6 @@
 
 int main(void)
 {
-    int tag_size = MEM_SIZE - (BS_SIZE + INDEX_SIZE);
     unsigned int bs, tag, index;
     
     unsigned int bs_mask = pow(2,BS_SIZE)-1;
