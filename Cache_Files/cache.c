@@ -223,22 +223,26 @@ return 0;
 *
 */
 
-int print_cache_set(struct cache_set* s_cache, int set, int ways)
+int print_cache_set
+(
+	struct cache_set* s_cache, 
+	int set, 
+	int ways
+)
 {
 	printf("Cache Set[%d] Contents:\n",set);
 	for(int i = 0; i < ways; i ++)
 	{		
 		printf("Way[%d] Valid: %d",i,
 			s_cache[set].valid[i]);
-		printf("  Dirty: %d",i,
-			s_cache[set].dirty[i]);
+		printf("  Dirty: %d", s_cache[set].dirty[i]);
 		if(s_cache[set].tag[i] == NULL)
 		{
 			printf("  Tag: NO TAG\n");
 		}
 		else
 		{
-		printf("  Tag: %x\n",*s_cache[set].tag[i]);
+		printf("  Tag: %x\n", *s_cache[set].tag[i]);
 		}
 	}
 return 0;
