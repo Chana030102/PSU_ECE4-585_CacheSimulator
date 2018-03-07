@@ -12,8 +12,40 @@
 /* cache functions */
 
 /*
-*	Store Tag / Index / ByteSelect
+*	Get Integer Value of Cache Location 
+*	(use this to select *cache struct* index)
 *
+*/
+int get_cache_index_value(unsigned int* index)
+{
+	return (int)*index;
+}
+
+/*
+*	Store Tag / Index / ByteSelect 
+*	as Unsigned Ints
+*
+*/
+int get_tag_bits_hex
+(
+	unsigned int* hex_add,
+	unsigned int* hex_tag,
+	unsigned int* hex_index,
+	unsigned int* hex_bs,
+	int index_size,
+	int bs_size
+)
+{
+	unsigned int bs_mask = pow(2,bs_size)-1;
+	unsigned int index_mask = pow(2,bs_size+index_size)-1;
+	*hex_bs = (*hex_add & bs_mask);
+	*hex_index = (*hex_add & index_mask) >> bs_size;
+	*hex_tag = *hex_add >> (bs_size + index_size);
+} 
+
+/*
+*	Store Tag / Index / ByteSelect
+*	as Binary Array
 *
 */
 int get_tag_bits
@@ -187,18 +219,27 @@ return 0;
 } 
 
 /*
-*	Print Contents of Cache Set (Specify Way)
+*	Print Contents of Cache Set
 *
 */
 
-int print_cache_set(struct cache_set* s_cache, int set, int way)
+int print_cache_set(struct cache_set* s_cache, int set, int ways)
 {
-	printf("cache valid: %d\n",s_cache[set].valid[way]);
-	printf("cache dirty: %d\n",s_cache[set].dirty[way]);
-	printf("cache tag for way [%d]: ",way);
-	for(int i = 0; i < cache_tag; i++)
-	{
-		printf("%d",s_cache[set].tag[way][i]);
+	printf("Cache Set[%d] Contents:\n",set);
+	for(int i = 0; i < ways; i ++)
+	{		
+		printf("Way[%d] Valid: %d",i,
+			s_cache[set].valid[i]);
+		printf("  Dirty: %d",i,
+			s_cache[set].dirty[i]);
+		if(s_cache[set].tag[i] == NULL)
+		{
+			printf("  Tag: NO TAG\n");
+		}
+		else
+		{
+		printf("  Tag: %x\n",*s_cache[set].tag[i]);
+		}
 	}
 return 0;
 }
