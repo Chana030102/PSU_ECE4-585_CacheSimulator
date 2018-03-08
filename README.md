@@ -1,4 +1,9 @@
 # PSU_ECE4-585_Project
+### Project Group
+Ryan Bornhorst < bornhor2@pdx.edu >
+
+Aaron Chan     < chanaar@pdx.edu  >
+
 ## Single Level Cache Simulator
 This program will simulate a single level writeback policy cache.
 Three parameters that should be variable will help define the cache structure:
@@ -22,10 +27,5 @@ Once all traces have been processed, the simulator should provide the following 
 * Cache miss ratio
 * Number of evictions
 * Number of writebacks
-=====
-### Project Group
-Ryan Bornhorst < bornhor2@pdx.edu >
-Aaron Chan     < chanaar@pdx.edu  >
 
-=====
 
