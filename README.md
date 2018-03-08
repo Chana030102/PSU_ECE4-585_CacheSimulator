@@ -6,15 +6,19 @@ Aaron Chan     < chanaar@pdx.edu  >
 
 ## Single Level Cache Simulator
 This program will simulate a single level writeback policy cache.
-Three parameters that should be variable will help define the cache structure:
+
+Three parameters that should be variable (only powers of 2) will help define the cache structure:
 * Number of sets
-* Associativity
+* Associativity (max 8)
 * Cache line size (limited to 32, 64, or 128 bytes)
 
 Traces will be provided in the following format:
+
     Access_Type Hex_Address
+
 Access type can be either a 0 (read) or 1 (write) to indicate the operation. 
 The Hex address should consist of the following fields in this order:
+
     | Tag | Index | Byte Select |
 
 Once all traces have been processed, the simulator should provide the following statistics:
