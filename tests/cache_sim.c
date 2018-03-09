@@ -12,8 +12,8 @@
 #include "cache.h"
 
 #define MEM_SIZE 32
-#define BS_SIZE 7
-#define INDEX_SIZE 10
+#define BS_SIZE 6
+#define INDEX_SIZE 5
 
 int main(void)
 {
@@ -21,8 +21,8 @@ int main(void)
     unsigned int bs, tag, index;    
     unsigned int bs_mask = pow(2,BS_SIZE)-1;
     unsigned int index_mask = pow(2,BS_SIZE+INDEX_SIZE+1)-1;
-    unsigned int address = 0xA0056FB9;
-
+    unsigned int address = 0xb3a38280;
+    
     bs = (bs_mask & address);
     index = (index_mask & address) >> BS_SIZE;
     tag = address >> (BS_SIZE + INDEX_SIZE);
@@ -36,8 +36,9 @@ int main(void)
     set[index].dirty = 0;
     set[index].LRU = 1;
     set[index].tag = tag;
-    
+        
     printf("Verify tag is saved correctly: %x\n",set[index].tag);
+    
     return 0;
 }
 
