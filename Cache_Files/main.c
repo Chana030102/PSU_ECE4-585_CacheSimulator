@@ -86,13 +86,17 @@ int main(int argc, char *argv[])
         printf("Cache loc: %d\n",cache_location);  
     
         //print contents of cache set
-	/* TESTING
+	// TESTING
         print_cache_set(s_cache,cache_location,
                         pow(2,cache_ways));
-	*/
+	
 
         /* start checking r/w, miss/hit behavior */
-    
+        for(int i=0;i<pow(2,cache_ways);i++)
+        {
+            if(s_cache[cache_location].valid[i]==0)
+                printf("Invalid %d",i);
+        }
 
         printf("\n");
     }

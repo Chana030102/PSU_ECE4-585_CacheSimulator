@@ -1,250 +1,102 @@
-
-/* place cache functions in here */
-
-/* # includes */
-
+/*
+ * Define necessary functions to work with the cache
+ */
 #include "cache.h"
 
-/* macros */
+/*
+// Initialize valid, dirty, and LRU to be zero for the
+// cache sets being used
+void init_sys_cache(struct cache_set* setup)
+{
+    setup = malloc(sizeof(struct cache_set*));
+    for(int j=0;j<cache_ways;j++)
+    {
 
-/* global variables */
-
-/* cache functions */
+        setup->valid[j]=0;
+        setup->dirty[j]=0;
+        setup->LRU[j]  =0;
+    }
+}
+*/
 
 /*
-*	Get Integer Value of Cache Location 
-*	(use this to select *cache struct* index)
-*
-*/
-int get_cache_index_value(unsigned int* index)
+ * Search for corresponding tag from trace.
+ * Upon hit, return corresponding way
+ * Upon miss, return -1 
+ */
+int cache_compare_tag(unsigned int tag, struct cache_set* req_set)
 {
-	return (int)*index;
+   for(int i=0;i<cache_ways;i++)
+   {
+      printf("%d ",i);
+      if(req_set->tag[i] == tag)
+      {
+         hits++;
+         return i;
+      }
+   }
+   misses++;
+   return -1;
 }
 
 /*
-*	Store Tag / Index / ByteSelect 
-*	as Unsigned Ints
-*
-*/
-int get_tag_bits_hex
-(
-	unsigned int* hex_add,
-	unsigned int* hex_tag,
-	unsigned int* hex_index,
-	unsigned int* hex_bs,
-	int index_size,
-	int bs_size
-)
+ * Look for invalid cache lines we can replace.
+ * Return corresponding way when invalid found.
+ * If all lines valid, then return -1.
+ */
+int cache_compare_valid(struct cache_set* req_set)
 {
-	unsigned int bs_mask = pow(2,bs_size)-1;
-	unsigned int index_mask = pow(2,bs_size+index_size)-1;
-	*hex_bs = (*hex_add & bs_mask);
-	*hex_index = (*hex_add & index_mask) >> bs_size;
-	*hex_tag = *hex_add >> (bs_size + index_size);
-} 
-
-/*
-*	Store Tag / Index / ByteSelect
-*	as Binary Array
-*
-*/
-int get_tag_bits
-(
-	int* bin,
-	int* tag_p,
-	int* index_p,
-	int* bs_p, 
-	int tag, 
-	int index, 
-	int bs
-)
-{
-	printf("Tag / Index / ByteSelect\n");
-	for(int i = 0; i < tag; i++)
-	{
-		tag_p[i] = bin[i];
-		printf("%d",tag_p[i]);
-	}
-	printf(" / ");
-	for(int i = tag; i < (index + tag); i++)
-	{
-		index_p[i - tag] = bin[i];
-		printf("%d",index_p[i-tag]);
-	}
-	printf(" / ");
-	for(int i = (tag + index); i < BIN; i++)
-	{
-		bs_p[i-(tag+index)] = bin[i];
-		printf("%d",bs_p[i-(tag+index)]);
-	}
-	printf("\n");
-return 0;
-} 
-
-/*
-*	Print Address in Hex and Binary
-*
-*
-*/
-int print_address(char* hex, int* bin)
-{
-	printf("Hex Address: %s\n",hex);
-	printf("Binary Address: ");
-	for(int i = 0; i < BIN; i++)
-	{
-		printf("%d",bin[i]);
-	}
-	printf("\n");
-return 0;
+    for(int i=0;i<cache_ways;i++)
+    {
+        if(req_set->valid[i]==0)
+            return i;
+    }
+    return -1;
 }
 
-/*
-*	Converts Hex Array to Binary Int Array
-*
-*
-*/
-int hex_to_bin(char* hex, int* binary,int size)
+/* 
+ * Compare LRU bits and evict a cache line
+ * If all LRU bits set to 1, reset all to 0
+ */
+int cache_evict(struct cache_set* req_set)
 {
-int j = 0;
+    // Check for LRU bit = 0
+    for(int i=0;i<cache_ways;i++)
+    {
+        if(req_set->LRU[i]==0)
+            return i;
+    }
 
-for(int i = 0; i < size; i++)
-{
-	j = i*4;
+    // All LRU bits were 1. Set all to 0
+    // and tell cache to evict the first way
+    for(int i=0;i<cache_ways;i++)
+        req_set->LRU[i] = 0;
+    return 0;
 
-	switch(hex[i])
-	{
-	case '0':
-		binary[j]   = 0;
-		binary[j+1] = 0;
-		binary[j+2] = 0;
-		binary[j+3] = 0;
-		break;
-	case '1':
-		binary[j]   = 0;
-		binary[j+1] = 0;
-		binary[j+2] = 0;
-		binary[j+3] = 1;
-		break;
-	case '2':
-		binary[j]   = 0;
-		binary[j+1] = 0;
-		binary[j+2] = 1;
-		binary[j+3] = 0;
-		break;
-	case '3':
-		binary[j]   = 0;
-		binary[j+1] = 0;
-		binary[j+2] = 1;
-		binary[j+3] = 1;
-		break;
-
-	case '4':
-		binary[j]   = 0;
-		binary[j+1] = 1;
-		binary[j+2] = 0;
-		binary[j+3] = 0;
-		break;
-	case '5':
-		binary[j]   = 0;
-		binary[j+1] = 1;
-		binary[j+2] = 0;
-		binary[j+3] = 1;
-		break;
-	case '6':
-		binary[j]   = 0;
-		binary[j+1] = 1;
-		binary[j+2] = 1;
-		binary[j+3] = 0;
-		break;
-	case '7':
-		binary[j]   = 0;
-		binary[j+1] = 1;
-		binary[j+2] = 1;
-		binary[j+3] = 1;
-		break;
-	case '8':
-		binary[j]   = 1;
-		binary[j+1] = 0;
-		binary[j+2] = 0;
-		binary[j+3] = 0;
-		break;
-	case '9':
-		binary[j]   = 1;
-		binary[j+1] = 0;
-		binary[j+2] = 0;
-		binary[j+3] = 1;
-		break;
-	case 'A':
-		binary[j]   = 1;
-		binary[j+1] = 0;
-		binary[j+2] = 1;
-		binary[j+3] = 0;
-		break;
-	case 'B':
-		binary[j]   = 1;
-		binary[j+1] = 0;
-		binary[j+2] = 1;
-		binary[j+3] = 1;
-		break;
-	case 'C':
-		binary[j]   = 1;
-		binary[j+1] = 1;
-		binary[j+2] = 0;
-		binary[j+3] = 0;
-		break;
-	case 'D':
-		binary[j]   = 1;
-		binary[j+1] = 1;
-		binary[j+2] = 0;
-		binary[j+3] = 1;
-		break;	
-	case 'E':
-		binary[j]   = 1;
-		binary[j+1] = 1;
-		binary[j+2] = 1;
-		binary[j+3] = 0;
-		break;
-	case 'F':	
-		binary[j]   = 1;
-		binary[j+1] = 1;
-		binary[j+2] = 1;
-		binary[j+3] = 1;
-		break;
-	default:
-		printf("Invalid Value: Hex to Bin\n");
-        }
 }
 
-return 0;
-} 
-
-/*
-*	Print Contents of Cache Set
-*
-*/
-
-int print_cache_set
-(
-	struct cache_set* s_cache, 
-	int set, 
-	int ways
-)
+/* 
+ *  Perform cache write. Update evictions and writebacks
+ *  when necessary. Also set dirty bit.
+ */
+int cache_write( unsigned int tag, struct cache_set* req_set)
 {
-	printf("Cache Set[%d] Contents:\n",set);
-	for(int i = 0; i < ways; i ++)
-	{		
-		printf("Way[%d] Valid: %d",i,
-			s_cache[set].valid[i]);
-		printf("  Dirty: %d", s_cache[set].dirty[i]);
-		if(s_cache[set].tag[i] == NULL)
-		{
-			printf("  Tag: NO TAG\n");
-		}
-		else
-		{
-		printf("  Tag: %x\n", *s_cache[set].tag[i]);
-		}
-	}
-return 0;
+    int way = cache_compare_tag(tag,&req_set); // determine cache hit/miss
+
+    if(way < 0)
+    {
+        
+    }
+    
+    // Write in cache line
+    req_set->valid[way] = 1;
+    req_set->dirty[way] = 1;
+    req_set->LRU[way] = 1;
+    req_set->tag[way] = tag;
+
+    return 1;
 }
+
+    
+
 
