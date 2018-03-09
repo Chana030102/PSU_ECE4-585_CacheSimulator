@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     unsigned int index_mask = pow(2,byte_select+cache_index)-1;
 
     int cache_sets_max = pow(2,cache_index); 
-    
+    int total_ways = pow(2,cache_ways);
     char address_str[HEX];
     char buffer[50];
     struct cache_set sys_cache[cache_sets_max];
@@ -48,15 +48,14 @@ int main(int argc, char *argv[])
         address = (unsigned int)strtol(address_str,NULL,16);
         
         bs = address & bs_mask;
-        index = (address & index_mask);
+        index = (address & index_mask)>> byte_select;
         tag = address >> (byte_select+cache_index);
-        
+
         if(r_w_bit)
             if(cache_write(tag,&sys_cache[index]) < 0)
                 printf("Failed to write\n");
         else
-          printf("Cache Read\n");      
-        	
+        printf("Cache Read\n");      
         total_accesses++;
     }
     printf("Total Accesses: %d\n",total_accesses);
