@@ -14,25 +14,24 @@ struct cache_set
 	const unsigned int* tag[MAX];
 };
 
-static int cache_ways;  // associativity
-static int cache_index; // number of index bits
-static int byte_select; // number of byte select bits
-static int r_w_bit;  //store read = 0, write = 1
+int cache_ways;  // associativity
+int cache_index; // number of index bits
+int byte_select; // number of byte select bits
+int r_w_bit;  //store read = 0, write = 1
 
 // Keep track of transactions
-static int total_accesses = 0;
-static int writes       = 0;
-//static int reads        = 0;
-static int hits         = 0;
-static int misses       = 0;
-static int evictions    = 0;
-static int writebacks   = 0;
+extern int total_accesses;
+extern int writes;
+extern int reads;
+extern int hits;   
+extern int misses;
+extern int evictions; 
+extern int writebacks;
 
 /* cache.c function declarations */
-//void init_sys_cache(struct cache_set* setup);
 int cache_compare_tag(unsigned int tag, 
                       struct cache_set* req_set); // Determine cache hit/miss
 int cache_compare_valid(struct cache_set* req_set);
 int cache_evict(struct cache_set* req_set);
-int cache_write(unsigned int tag, struct cache_set* req_set); 
-int cache_read(unsigned int tag, struct cache_set* req_set);
+int cache_op(unsigned int tag, struct cache_set* req_set); 
+void cache_stats(void);

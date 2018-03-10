@@ -3,22 +3,18 @@
  */
 #include "cache.h"
 
-/*
-// Initialize valid, dirty, and LRU to be zero for the
-// cache sets being used
-void init_sys_cache(struct cache_set* setup)
-{
-    setup = malloc(sizeof(struct cache_set*));
-    for(int j=0;j<cache_ways;j++)
-    {
+/******* Globals *******/
+// Keep track of transactions
+int total_accesses = 0;
+int writes = 0;   
+int reads = 0;
+int hits = 0;
+int misses = 0;
+int evictions = 0;
+int writebacks = 0;
 
-        setup->valid[j]=0;
-        setup->dirty[j]=0;
-        setup->LRU[j]  =0;
-    }
-}
-*/
 
+/******* Functions *******/
 /*
  * Search for corresponding tag from trace.
  * Upon hit, return corresponding way
@@ -60,43 +56,101 @@ int cache_compare_valid(struct cache_set* req_set)
  */
 int cache_evict(struct cache_set* req_set)
 {
+    int to_evict = -1;
     // Check for LRU bit = 0
     for(int i=0;i<cache_ways;i++)
     {
         if(req_set->LRU[i]==0)
-            return i;
+        {
+            to_evict = i;
+            break;
+        }
     }
 
     // All LRU bits were 1. Set all to 0
     // and tell cache to evict the first way
-    for(int i=0;i<cache_ways;i++)
-        req_set->LRU[i] = 0;
-    return 0;
+    if(to_evict == -1)
+    {
+        for(int i=0;i<cache_ways;i++)
+            req_set->LRU[i] = 0;
+        to_evict = 0;
+    }
+    
+    if(req_set->dirty[to_evict]==1)
+        writebacks++;
+    evictions++;
+    return to_evict;
 
 }
 
 /* 
- *  Perform cache write. Update evictions and writebacks
- *  when necessary. Also set dirty bit.
+ * Perform Cache Operation
+ * Check for hit or miss and then perform the
+ * specified operation.
+ *
+ * Valid and LRU bits will be set on every operatoin
+ * Only the Write operation will set the dirty bit
  */
-int cache_write( unsigned int tag, struct cache_set* req_set)
+int cache_op(unsigned int tag, struct cache_set* req_set)
 {
-    int way = cache_compare_tag(tag,&req_set); // determine cache hit/miss
+    int way = cache_compare_tag(tag,req_set); // determine cache hit/miss
+    printf("Result of Tag Compare: %d\n",way);
 
-    if(way < 0)
+    if(way < 0) // Cache miss
     {
-        
-    }
-    
-    // Write in cache line
-    req_set->valid[way] = 1;
-    req_set->dirty[way] = 1;
-    req_set->LRU[way] = 1;
-    req_set->tag[way] = tag;
+       way = cache_compare_valid(req_set);
+       printf("Result of Valid Compare: %d\n",way);
+       if(way < 0)
+       {
+           way = cache_evict(req_set);
+           printf("Result of Evict: %d\n",way);
+       }
 
+       if(r_w_bit) // Cache Write
+       {
+           // Write in cache line
+           req_set->valid[way] = 1;
+           req_set->dirty[way] = 1;
+           req_set->LRU[way] = 1;
+           req_set->tag[way] = tag;
+           writes++;
+       }
+       else // Cache Read
+       {
+           req_set->valid[way] = 1;
+           req_set->dirty[way] = 0;
+           req_set->LRU[way] = 1;
+           req_set->tag[way] = tag;
+           reads++;
+       }
+
+    }
+    else  // Cache hit
+    {
+       if(r_w_bit) // Cache Write
+       {
+           // Write in cache line
+           req_set->dirty[way] = 1;
+           req_set->LRU[way] = 1;
+           writes++;
+       }
+       else // Cache Read
+       {
+           req_set->LRU[way] = 1;
+           reads++;
+       }
+    }
     return 1;
 }
 
-    
-
-
+/* 
+ * Display the performance statistics of
+ * the cache with the applied trace
+ */
+void cache_stats(void)
+{
+    printf("Total Accesses: %d\n",total_accesses);
+    printf("Hits: %d\nMisses: %d\n",hits,misses);
+    printf("Writes: %d\nReads: %d\n",writes,reads);
+    printf("Evictions: %d\nWritebacks: %d\n",evictions,writebacks);
+}
