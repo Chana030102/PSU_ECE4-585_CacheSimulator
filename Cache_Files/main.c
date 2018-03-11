@@ -4,39 +4,69 @@
 
 int main(int argc, char *argv[])
 {
-    if(argc != 2)
+    //Cache Variables
+    int cache_ways;
+    int byte_select;
+    int cache_index;
+
+    if(argc != 5)
     {
-	return 1;
+	printf("Invalid # of Parameters!\n\n"
+		"Run as Follows: " 
+		"./sim_cache (filename) (log2associativity) "
+		"(#byte select bits) (#index bits)\n");  
+	return -1;
+    }
+    else
+    {
+	cache_ways = atoi(argv[2]);
+	byte_select = atoi(argv[3]);
+	cache_index = atoi(argv[4]);
+	
+	if((cache_ways != 0) && (cache_ways != 1) &&
+	   (cache_ways != 2) && (cache_ways != 3))
+	{
+		printf("Invalid Associativity Parameter!\n"
+		        "Must be log2(1), log2(2), log2(4), or "
+			"log2(8)\n");
+		return -1;
+	}
+	else if((byte_select != 5) && (byte_select != 6) &&
+		(byte_select != 7))
+	{
+		printf("Invalid Byte Select Parameter!\n"
+			"Must be log2(32), log2(64), or "
+			"log2(128)\n");
+		return -1;
+	}
+	else if(!(cache_index < 
+		 (32 - (byte_select + byte_select))))
+	{
+		printf("Total Cache Sets Out of Range!\n"
+			"Bits Allocated to Cache are Exceeding "
+			"Total Address Bits\n");
+		return -1;
+	}
+	else
+	{
+		printf("\nRunning Simulation!\n\n");
+	}
     }
 
-    /* get from user */
-
-    cache_ways = 0;  //2^3
-    byte_select = 6;
-    cache_index = 8;
-    cache_tag = BIN - (cache_index + byte_select);
-   
     /* variables */
 
-    /* TESTING */
-    int tag_bits[cache_tag];
-    int index_bits[cache_index];
-    int bs_bits[byte_select];
-
-    //hex values
+    //hex values for tag, index, byte select
     unsigned int hex_tag;
     unsigned int hex_index;
     unsigned int hex_bs;
-    //cache index
-    int cache_location;
-    //trace address
+    //trace address as string and unsigned int
     char hex_address_str[HEX];
     unsigned int hex_address_us;
-    int binary_address[BIN];
-    //all possible cache lines (array)
+    //all possible cache lines (max sets array)
     double cache_sets_max = pow(2,cache_index); 
     struct cache_set s_cache[(int)cache_sets_max];
      
+    //initialize the cache at startup
     cache_startup(s_cache, cache_sets_max,
 		  (int)pow(2,cache_ways));
  
@@ -44,14 +74,16 @@ int main(int argc, char *argv[])
     FILE *fp = fopen(argv[1], "r");
     if(!fp)
     {
-	return 1;
+	printf("Unable to Read from File!\n");
+	return -1;
     }
+    //temporary file buffer
     char buffer[50];
     while(fgets(buffer,50,fp) != NULL)
     {
-	printf("Trace: %s\n",buffer);
 	//store r/w bit
-        sscanf(&buffer[0],"%d",&r_w_bit);    
+        sscanf(&buffer[0],"%d",&r_w_bit);  
+  
 	for(int i = 2; i < (HEX + 2); i++)
 	{
 		//store hex address string
@@ -64,44 +96,39 @@ int main(int argc, char *argv[])
         		  NULL,16);
 	
 	//retrieve tag/index/byte select
-        get_tag_bits_hex(&hex_address_us, &hex_tag,&hex_index,
-                         &hex_bs, cache_index, byte_select);
-   	
-        printf("Hex Add: %x\n",hex_address_us); 
-        printf("Hex Tag: %x\n",hex_tag); 
-        printf("Hex Ind: %x\n",hex_index); 
-        printf("Hex  BS: %x\n",hex_bs); 
-	
-	/*
-	hex_to_bin(hex_address_str,binary_address,HEX);
-	get_tag_bits(binary_address, tag_bits, index_bits,
-		     bs_bits, cache_tag, cache_index,
-	             byte_select);	
-	*/
-	
-        //store set location as integer
-        printf("Cache location: %d\n",
-	        (int)hex_index);  
-	
+        set_tag_ind_bs( &hex_address_us, &hex_tag, &hex_index,
+                        &hex_bs, cache_index, byte_select);
+   		
         /* start checking r/w, miss/hit behavior */
         if(r_w_bit == 0)
 	{
-		printf("READ!\n");
-		cache_read(s_cache, hex_tag, (int)hex_index,
-			   (int)pow(2,cache_ways));
-		++cache_reads;
+		//Perform a Read Operation
+		if((cache_read(s_cache, hex_tag, (int)hex_index,
+			       (int)pow(2,cache_ways))) != 0)
+		{
+			printf("READ FAILURE!\n");
+		}
+		else
+		{
+			++cache_reads;
+		}
 	}
 	else
 	{
-		printf("WRITE!\n");
-		cache_write(s_cache, hex_tag, (int)hex_index,
-			    (int)pow(2,cache_ways));
-		++cache_writes;
+		//Perform a Write Operation
+		if((cache_write(s_cache, hex_tag, 
+				(int)hex_index,
+			        (int)pow(2,cache_ways))) != 0)
+		{
+			printf("WRITE FAILURE!\n");
+		}
+		else
+		{
+			++cache_writes;
+		}
 	}
- 
-
+ 	//Cache was Accessed
 	++cache_accesses;
-        printf("\n");
     }
     fclose(fp);
 
@@ -121,8 +148,8 @@ int main(int argc, char *argv[])
     printf("Number of Cache Writes: %d\n", cache_writes);
     printf("Number of Cache Hits: %d\n", cache_hits);
     printf("Number of Cache Misses: %d\n", cache_misses);
-    printf("Cache Hit Ratio: %.2f%\n", cache_hit_ratio);
-    printf("Cache Miss Ratio: %.2f%\n", cache_miss_ratio);
+    printf("Cache Hit Ratio: %2.2f%\n", cache_hit_ratio);
+    printf("Cache Miss Ratio: %2.2f%\n", cache_miss_ratio);
     printf("Number of Evictions: %d\n", cache_evictions);
     printf("Number of Writebacks: %d\n\n", cache_writebacks);
 
