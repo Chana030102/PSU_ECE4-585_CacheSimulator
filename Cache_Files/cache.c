@@ -11,14 +11,193 @@
 
 /* cache functions */
 
+int cache_startup
+(
+	struct cache_set* s_cache,
+	int tot_sets,
+	int tot_ways
+)
+{
+	for(int i = 0; i < tot_sets; i++)
+	{
+		for(int j = 0; j < tot_ways; j++)
+		{
+			s_cache[i].valid[j] = 0;
+			s_cache[i].dirty[j] = 0;
+			s_cache[i].LRU[j] = 0;
+			s_cache[i].tag[j] = 0;
+		}
+	}
+return 0;
+}
+
 /*
-*	Get Integer Value of Cache Location 
-*	(use this to select *cache struct* index)
+*	Write to the Cache 
+*	-determine hit/miss/replace
 *
 */
-int get_cache_index_value(unsigned int* index)
+int cache_write
+(
+	struct cache_set* s_cache,
+	unsigned int tag,
+	int index,
+	int tot_ways
+)
 {
-	return (int)*index;
+	int LRU_counter = 0;
+
+	//first check LRU and reset if needed
+	for(int i = 0; i < tot_ways; i++)
+	{
+		if(s_cache[index].LRU[i] == 1)
+		{
+			++LRU_counter;
+		}
+	}
+	printf("LRU Count: %d\n", LRU_counter);
+	if(LRU_counter == tot_ways)
+	{
+		for(int i = 0; i < tot_ways; i++)
+		{
+			s_cache[index].LRU[i] = 0;
+			--LRU_counter;
+		}
+	}
+	printf("LRU Count: %d\n", LRU_counter);
+	printf("LRU Bit: %d\n", s_cache[index].LRU[0]);	
+	//check if valid == 0
+	for(int i = 0; i < tot_ways; i++)
+	{
+		if(s_cache[index].valid[i] == 0)
+		{
+			printf("Compulsory Miss!\n");
+			s_cache[index].valid[i] = 1;
+			s_cache[index].dirty[i] = 1;
+			s_cache[index].LRU[i] = 1;
+			s_cache[index].tag[i] = tag;
+			++cache_hits;
+			return 0;
+		}
+	}
+	//check if valid is "set"
+	for(int i = 0; i < tot_ways; i++)
+	{
+		//write hit
+		if((s_cache[index].valid[i] == 1) &&
+		   (s_cache[index].tag[i] == tag))
+		{
+			printf("Cache Hit!\n");
+			s_cache[index].dirty[i] = 1;
+			s_cache[index].LRU[i] = 1;
+			++cache_hits;
+			return 0;
+		}
+	}
+	//valid is set, but different tag
+	for(int i = 0; i < tot_ways; i++)
+	{
+		//miss and replace with LRU
+		if(s_cache[index].LRU[i] == 0)
+		{
+			printf("Replacement!\n");
+			s_cache[index].tag[i] = tag;
+			s_cache[index].LRU[i] = 1;
+			++cache_misses;
+			++cache_evictions;
+			if(s_cache[index].dirty[i] == 1)
+			{
+				printf("Dirty!\n");
+				++cache_writebacks;
+			}
+			s_cache[index].dirty[i] = 1;
+			return 0;
+		}
+	}
+		
+return -1;
+}
+
+/*
+*	Read the Cache 
+*	-determine hit/miss/replace
+*
+*/
+int cache_read
+(
+	struct cache_set* s_cache,
+	unsigned int tag,
+	int index, 
+	int tot_ways
+)
+{
+	int LRU_counter = 0;
+
+	//first check LRU and reset if needed
+	for(int i = 0; i < tot_ways; i++)
+	{
+		if(s_cache[index].LRU[i] == 1)
+		{
+			++LRU_counter;
+		}
+	}
+	if(LRU_counter == tot_ways)
+	{
+		for(int i = 0; i < tot_ways; i++)
+		{
+			s_cache[index].LRU[i] = 0;
+		}
+	}
+	
+	//check if valid == 0
+	for(int i = 0; i < tot_ways; i++)
+	{
+		if(s_cache[index].valid[i] == 0)
+		{
+			printf("Compulsory Miss!\n");
+			s_cache[index].valid[i] = 1;
+			s_cache[index].tag[i] = tag;
+			s_cache[index].LRU[i] = 1;
+			printf("TAG: %x\n",
+			       s_cache[index].tag[i]);
+			++cache_misses;
+			return 0;
+		}
+	}
+	//check if valid == 1
+	for(int i = 0; i < tot_ways; i++)
+	{
+		//cache hit
+		if((s_cache[index].valid[i] == 1) && 
+		   (s_cache[index].tag[i] == tag))
+		{
+			printf("Cache Hit! %x %x\n",
+				tag, 
+				s_cache[index].tag[i]);
+			s_cache[index].LRU[i] = 1;
+			++cache_hits;
+			return 0;
+		}
+	}
+	//valid is 1, tags didn't match
+	for(int i = 0; i < tot_ways; i++)
+	{
+		//replacement with LRU
+		if(s_cache[index].LRU[i] == 0)
+		{
+			printf("Replacement!\n");
+			s_cache[index].tag[i] = tag;
+			s_cache[index].LRU[i] = 1;
+			++cache_misses;
+			++cache_evictions;
+			if(s_cache[index].dirty[i] == 1)
+			{
+				printf("Dirty!\n");
+				++cache_writebacks;
+			}
+			return 0;
+		}
+	}
+return -1;
 }
 
 /*
@@ -41,6 +220,7 @@ int get_tag_bits_hex
 	*hex_bs = (*hex_add & bs_mask);
 	*hex_index = (*hex_add & index_mask) >> bs_size;
 	*hex_tag = *hex_add >> (bs_size + index_size);
+return 0;
 } 
 
 /*
@@ -236,13 +416,13 @@ int print_cache_set
 		printf("Way[%d] Valid: %d",i,
 			s_cache[set].valid[i]);
 		printf("  Dirty: %d", s_cache[set].dirty[i]);
-		if(s_cache[set].tag[i] == NULL)
+		if(s_cache[set].tag[i] == 0)
 		{
 			printf("  Tag: NO TAG\n");
 		}
 		else
 		{
-		printf("  Tag: %x\n", *s_cache[set].tag[i]);
+		printf("  Tag: %x\n", s_cache[set].tag[i]);
 		}
 	}
 return 0;
