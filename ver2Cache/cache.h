@@ -17,7 +17,7 @@ struct cache_set
 int cache_ways;  // associativity
 int cache_index; // number of index bits
 int byte_select; // number of byte select bits
-int r_w_bit;  //store read = 0, write = 1
+int r_w_bit;     // store read = 0, write = 1
 
 // Keep track of transactions
 extern int total_accesses;
@@ -30,8 +30,7 @@ extern int writebacks;
 
 /* cache.c function declarations */
 void init_cache(struct cache_set* sys_cache);
-int cache_compare_tag(unsigned int tag, 
-                      struct cache_set* req_set); // Determine cache hit/miss
+int cache_compare_tag(unsigned int tag, struct cache_set* req_set);
 int cache_compare_valid(struct cache_set* req_set);
 int cache_evict(struct cache_set* req_set);
 int cache_op(unsigned int tag, struct cache_set* req_set); 
