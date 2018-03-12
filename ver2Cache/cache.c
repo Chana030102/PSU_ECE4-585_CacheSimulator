@@ -16,6 +16,19 @@ int writebacks = 0;
 
 /******* Functions *******/
 /*
+ * Set all LRU, dirty, and valid bits as 0
+ */
+void init_cache(struct cache_set* sys_cache)
+{
+    for(int i=0;i<cache_ways;i++)
+    {
+        sys_cache->valid[i] = 0;
+        sys_cache->dirty[i] = 0;
+        sys_cache->LRU[i] = 0;
+    }
+}
+
+/*
  * Search for corresponding tag from trace.
  * Upon hit, return corresponding way
  * Upon miss, return -1 
@@ -27,8 +40,11 @@ int cache_compare_tag(unsigned int tag, struct cache_set* req_set)
       printf("%d ",i);
       if(req_set->tag[i] == tag)
       {
-         hits++;
-         return i;
+          if(req_set->valid[i]==1)
+          {
+              hits++;
+              return i;
+          }
       }
    }
    misses++;
@@ -62,11 +78,11 @@ int cache_evict(struct cache_set* req_set)
     {
         if(req_set->LRU[i]==0)
         {
-            to_evict = i;
-            break;
+            return i;
         }
     }
 
+    printf("Reset all LRU to 0\n");
     // All LRU bits were 1. Set all to 0
     // and tell cache to evict the first way
     if(to_evict == -1)

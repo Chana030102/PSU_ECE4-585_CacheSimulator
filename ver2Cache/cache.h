@@ -11,7 +11,7 @@ struct cache_set
 	int valid[MAX];
 	int dirty[MAX];
 	int LRU[MAX];
-	const unsigned int* tag[MAX];
+	unsigned int tag[MAX];
 };
 
 int cache_ways;  // associativity
@@ -29,6 +29,7 @@ extern int evictions;
 extern int writebacks;
 
 /* cache.c function declarations */
+void init_cache(struct cache_set* sys_cache);
 int cache_compare_tag(unsigned int tag, 
                       struct cache_set* req_set); // Determine cache hit/miss
 int cache_compare_valid(struct cache_set* req_set);
