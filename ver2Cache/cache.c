@@ -37,7 +37,6 @@ int cache_compare_tag(unsigned int tag, struct cache_set* req_set)
 {
    for(int i=0;i<cache_ways;i++)
    {
-      printf("%d ",i);
       if(req_set->tag[i] == tag)
       {
           if(req_set->valid[i]==1)
@@ -78,11 +77,11 @@ int cache_evict(struct cache_set* req_set)
     {
         if(req_set->LRU[i]==0)
         {
-            return i;
+            to_evict=i;
+            break;
         }
     }
 
-    printf("Reset all LRU to 0\n");
     // All LRU bits were 1. Set all to 0
     // and tell cache to evict the first way
     if(to_evict == -1)
@@ -110,17 +109,12 @@ int cache_evict(struct cache_set* req_set)
 int cache_op(unsigned int tag, struct cache_set* req_set)
 {
     int way = cache_compare_tag(tag,req_set); // determine cache hit/miss
-    printf("Result of Tag Compare: %d\n",way);
-
+    
     if(way < 0) // Cache miss
     {
        way = cache_compare_valid(req_set);
-       printf("Result of Valid Compare: %d\n",way);
        if(way < 0)
-       {
            way = cache_evict(req_set);
-           printf("Result of Evict: %d\n",way);
-       }
 
        if(r_w_bit) // Cache Write
        {
@@ -165,8 +159,18 @@ int cache_op(unsigned int tag, struct cache_set* req_set)
  */
 void cache_stats(void)
 {
-    printf("Total Accesses: %d\n",total_accesses);
-    printf("Hits: %d\nMisses: %d\n",hits,misses);
-    printf("Writes: %d\nReads: %d\n",writes,reads);
-    printf("Evictions: %d\nWritebacks: %d\n",evictions,writebacks);
+    float hit_ratio = (hits/(float)total_accesses)*100;
+    float miss_ratio = (misses/(float)total_accesses)*100;
+
+    printf("========== Cache Performance Results ==========\n\n");
+    printf("Total Cache Accesses: %d\n",total_accesses);
+    printf("Number of Cache Reads: %d\n",reads);
+    printf("Number of Cache Writes: %d\n",writes);
+    printf("Number of Cache Hits: %d\n",hits);
+    printf("Number of Cache Misses: %d\n",misses);
+    printf("Cache Hit Ratio: %2.2f%\n",hit_ratio);
+    printf("Cache Miss Ratio: %2.2f%\n",miss_ratio);
+    printf("Number of Evictions: %d\n",evictions);
+    printf("Number of Writebacks: %d\n\n",writebacks);
+    printf("===============================================\n\n");
 }

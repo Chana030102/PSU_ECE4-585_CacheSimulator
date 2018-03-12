@@ -2,8 +2,16 @@
 
 int main(int argc, char *argv[])
 {
-    int num_of_sets, line_size;
+    int cache_sets_max, line_size;
 
+    unsigned int address;
+    unsigned int tag;
+    unsigned int index;
+    unsigned int index_mask;
+
+    char address_str[HEX];
+    char buffer[50];
+    
     // If user doesn't include trace file name in 
     // commandline argument, then warn and quit
     if(argc != 2)
@@ -17,12 +25,14 @@ int main(int argc, char *argv[])
     // * Number of Sets
     // * Associativity
     // * Cache line size
+    printf("Provide the following cache parameters."
+           "All numbers must be a power of 2.\n\n");
     printf("Input number of sets: ");
-    scanf("%d",&num_of_sets);
+    scanf("%d",&cache_sets_max);
 
     printf("Input associativiy: ");
     scanf("%d",&cache_ways);
-    while(cache_ways==7 || cache_ways==5 || cache_ways==3)
+    while(cache_ways!=1 && cache_ways!=2 && cache_ways!=4 && cache_ways!=8)
     {
         printf("Associativity must be a power of 2.\n"
                "Input associativity: ");
@@ -38,25 +48,22 @@ int main(int argc, char *argv[])
         printf("Input cache line size(bytes): ");
         scanf("%d",&line_size);
     }
+    printf("\n\n");
    
     // Use inputs for line size and sets
     // and determine number of bits by using
     // log base 2
-    cache_index = log2(num_of_sets); 
+    cache_index = log2(cache_sets_max); 
     byte_select = log2(line_size);
 
-    unsigned int address;
-    unsigned int tag;
-    unsigned int index;
-    unsigned int index_mask = pow(2,byte_select+cache_index)-1;
-
-    int cache_sets_max = pow(2,cache_index); 
-    char address_str[HEX];
-    char buffer[50];
-    struct cache_set sys_cache[cache_sets_max];
+    index_mask = pow(2,byte_select+cache_index)-1;
     
+    // initialize cache with valid, dirty, and LRU
+    // bits as 0
+    struct cache_set sys_cache[cache_sets_max];
     for(int i=0;i<cache_sets_max;i++)
         init_cache(&sys_cache[i]);
+
     // Attempt to open file
     FILE *fp = fopen(argv[1], "r");
     if(!fp) 
@@ -65,7 +72,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    // Read in traces and process
+    // Read in traces from file and process
     while(fgets(buffer,50,fp) != NULL)
     {
         sscanf(&buffer[0],"%d",&r_w_bit); //parse op bit
@@ -77,16 +84,12 @@ int main(int argc, char *argv[])
         address = (unsigned int)strtol(address_str,NULL,16);
     
         // mask for cache fields    
-        //bs = address & bs_mask;
         index = (address & index_mask)>> byte_select;
         tag = address >> (byte_select+cache_index);
-    	
-        printf("Trace: %s\n",buffer);
-        printf("Index = %d or %x\n",index,index);
-        printf("Tag   = %d or %x\n",tag,tag);
-
+    
+        // Perform requested cache operation    
         cache_op(tag,&sys_cache[index]);
-        total_accesses++;
+        total_accesses++; // increment access count
     }
     fclose(fp); // close file
     cache_stats();
