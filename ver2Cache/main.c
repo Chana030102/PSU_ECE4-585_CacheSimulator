@@ -2,23 +2,49 @@
 
 int main(int argc, char *argv[])
 {
-    int num_of_sets;
+    int num_of_sets, line_size;
 
+    // If user doesn't include trace file name in 
+    // commandline argument, then warn and quit
     if(argc != 2)
     {
         printf("Include trace file as argument:\n"
                " \t./simcache <trace_file>\n\n");
 	    return 1;
     }
-/*
-    printf("Input number of steps: ");
-    scanf("%d",num_of_sets);
+
+    // Prompt user for:
+    // * Number of Sets
+    // * Associativity
+    // * Cache line size
+    printf("Input number of sets: ");
+    scanf("%d",&num_of_sets);
+
     printf("Input associativiy: ");
-  */  
-    cache_ways = 8;  //2^3
-    byte_select = 6;
-    cache_index = 5;
+    scanf("%d",&cache_ways);
+    while(cache_ways==7 || cache_ways==5 || cache_ways==3)
+    {
+        printf("Associativity must be a power of 2.\n"
+               "Input associativity: ");
+        scanf("%d",&cache_ways);
+    }
+
+    printf("Input cache line size: ");
+    scanf("%d",&line_size);
+    while(line_size!=32 && line_size!=64 && line_size!=128)
+    {
+        printf("Cache line size can only be on of the following:"
+                "\n32 Bytes\t64 Bytes\t 128 Bytes\n\n");
+        printf("Input cache line size(bytes): ");
+        scanf("%d",&line_size);
+    }
    
+    // Use inputs for line size and sets
+    // and determine number of bits by using
+    // log base 2
+    cache_index = log2(num_of_sets); 
+    byte_select = log2(line_size);
+
     unsigned int address;
     unsigned int tag;
     unsigned int index;
