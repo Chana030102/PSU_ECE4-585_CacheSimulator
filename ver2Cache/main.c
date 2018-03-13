@@ -1,3 +1,24 @@
+/*
+ * Single Level Cache Simulator
+ *
+ * ECE4/585 (Winter 2018) 
+ * Microprocessor System Design Project
+ * 
+ * No data implemenation. 
+ * A file with trace(s) will be provided which each
+ * trace will be in the following format:
+ *     <Access Type> <Hex_Address>
+ *
+ * Access_Type will indicate the operation:
+ *   0 - Read         1 - Write
+ *
+ * The hex address will be split up into the
+ * following fields:
+ *    |   Tag   |   Index   |   Byte Select   |
+ *
+ * Process each trace and keep track of requests 
+ * and report them.
+ */
 #include "cache.h"
 
 int main(int argc, char *argv[])
@@ -27,25 +48,25 @@ int main(int argc, char *argv[])
     // * Cache line size
     printf("Provide the following cache parameters."
            "All numbers must be a power of 2.\n\n");
-    printf("Input number of sets: ");
+    printf("Number of sets: ");
     scanf("%d",&cache_sets_max);
 
-    printf("Input associativiy: ");
+    printf("Associativiy: ");
     scanf("%d",&cache_ways);
     while(cache_ways!=1 && cache_ways!=2 && cache_ways!=4 && cache_ways!=8)
     {
         printf("Associativity must be a power of 2.\n"
-               "Input associativity: ");
+               "Associativity: ");
         scanf("%d",&cache_ways);
     }
 
-    printf("Input cache line size: ");
+    printf("Cache line size(bytes): ");
     scanf("%d",&line_size);
     while(line_size!=32 && line_size!=64 && line_size!=128)
     {
         printf("Cache line size can only be on of the following:"
                 "\n32 Bytes\t64 Bytes\t 128 Bytes\n\n");
-        printf("Input cache line size(bytes): ");
+        printf("Cache line size(bytes): ");
         scanf("%d",&line_size);
     }
     printf("\n\n");
@@ -92,6 +113,6 @@ int main(int argc, char *argv[])
         total_accesses++; // increment access count
     }
     fclose(fp); // close file
-    cache_stats();
+    cache_stats(); // display cache performance results
     return 0;
 }
