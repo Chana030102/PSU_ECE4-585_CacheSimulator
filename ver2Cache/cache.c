@@ -168,8 +168,8 @@ void cache_stats(void)
     printf("Number of Cache Writes: %d\n",writes);
     printf("Number of Cache Hits: %d\n",hits);
     printf("Number of Cache Misses: %d\n",misses);
-    printf("Cache Hit Ratio: %2.2f%\n",hit_ratio);
-    printf("Cache Miss Ratio: %2.2f%\n",miss_ratio);
+    printf("Cache Hit Ratio: %2.2f%%\n",hit_ratio);
+    printf("Cache Miss Ratio: %2.2f%%\n",miss_ratio);
     printf("Number of Evictions: %d\n",evictions);
     printf("Number of Writebacks: %d\n\n",writebacks);
     printf("===============================================\n\n");
