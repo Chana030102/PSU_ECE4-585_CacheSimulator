@@ -42,28 +42,31 @@ int main(int argc, char *argv[])
 	    return 1;
     }
 
-    // Prompt user for:
-    // * Number of Sets
-    // * Associativity
-    // * Cache line size
+    // Prompt user for number of sets
     printf("Provide the following cache parameters."
            "All numbers must be a power of 2.\n\n");
     printf("Number of sets: ");
     scanf("%d",&cache_sets_max);
 
+    // Prompt user for associativity
     printf("Associativiy: ");
     scanf("%d",&cache_ways);
     while(cache_ways!=1 && cache_ways!=2 && cache_ways!=4 && cache_ways!=8)
     {
+        // if input is not a power of 2 or is too large, 
+        // keep prompting until a valid input is given.
         printf("Associativity must be a power of 2.\n"
                "Associativity: ");
         scanf("%d",&cache_ways);
     }
 
+    // Prompt user for cache line size
     printf("Cache line size(bytes): ");
     scanf("%d",&line_size);
     while(line_size!=32 && line_size!=64 && line_size!=128)
     {
+        // if input is not power of 2 OR is not within our limits,
+        // keep prompting user until valid input given
         printf("Cache line size can only be on of the following:"
                 "\n32 Bytes\t64 Bytes\t 128 Bytes\n\n");
         printf("Cache line size(bytes): ");

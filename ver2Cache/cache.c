@@ -82,7 +82,7 @@ int cache_evict(struct cache_set* req_set)
         }
     }
 
-    // All LRU bits were 1. Set all to 0
+    // If all LRU bits were 1, set all to 0
     // and tell cache to evict the first way
     if(to_evict == -1)
     {
@@ -91,6 +91,8 @@ int cache_evict(struct cache_set* req_set)
         to_evict = 0;
     }
     
+    // If to_evict way has dirty bit set,
+    // then increment writebacks
     if(req_set->dirty[to_evict]==1)
         writebacks++;
     evictions++;
@@ -116,16 +118,15 @@ int cache_op(unsigned int tag, struct cache_set* req_set)
        if(way < 0)
            way = cache_evict(req_set);
 
-       if(r_w_bit) // Cache Write
+       if(r_w_bit) // Cache Write on miss
        {
-           // Write in cache line
            req_set->valid[way] = 1;
            req_set->dirty[way] = 1;
            req_set->LRU[way] = 1;
            req_set->tag[way] = tag;
            writes++;
        }
-       else // Cache Read
+       else // Cache Read on miss
        {
            req_set->valid[way] = 1;
            req_set->dirty[way] = 0;
@@ -137,14 +138,13 @@ int cache_op(unsigned int tag, struct cache_set* req_set)
     }
     else  // Cache hit
     {
-       if(r_w_bit) // Cache Write
+       if(r_w_bit) // Cache Write on hit
        {
-           // Write in cache line
            req_set->dirty[way] = 1;
            req_set->LRU[way] = 1;
            writes++;
        }
-       else // Cache Read
+       else // Cache Read on hit
        {
            req_set->LRU[way] = 1;
            reads++;
