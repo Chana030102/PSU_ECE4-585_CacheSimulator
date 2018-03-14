@@ -65,20 +65,6 @@ int cache_write
 		}
 	}
 	
-	//check if valid == 0, Cache Line Empty, Hit for Write
-	for(int i = 0; i < tot_ways; i++)
-	{
-		if(s_cache[index].valid[i] == 0)
-		{
-			s_cache[index].valid[i] = 1;
-			s_cache[index].dirty[i] = 1;
-			s_cache[index].LRU[i] = 1;
-			s_cache[index].tag[i] = tag;
-			++cache_hits;
-			return 0;
-		}
-	}
-
 	//check if valid == 1 and Tags match, Hit for Write
 	for(int i = 0; i < tot_ways; i++)
 	{
@@ -89,6 +75,20 @@ int cache_write
 			s_cache[index].dirty[i] = 1;
 			s_cache[index].LRU[i] = 1;
 			++cache_hits;
+			return 0;
+		}
+	}
+	
+	//check if valid == 0, Cache Line Empty, Miss for Write
+	for(int i = 0; i < tot_ways; i++)
+	{
+		if(s_cache[index].valid[i] == 0)
+		{
+			s_cache[index].valid[i] = 1;
+			s_cache[index].dirty[i] = 1;
+			s_cache[index].LRU[i] = 1;
+			s_cache[index].tag[i] = tag;
+			++cache_misses;
 			return 0;
 		}
 	}
@@ -152,19 +152,6 @@ int cache_read
 			s_cache[index].LRU[i] = 0;
 		}
 	}
-	
-	//Check if valid == 0.. Yes, then Compulsory Read Miss
-	for(int i = 0; i < tot_ways; i++)
-	{
-		if(s_cache[index].valid[i] == 0)
-		{
-			s_cache[index].valid[i] = 1;
-			s_cache[index].tag[i] = tag;
-			s_cache[index].LRU[i] = 1;
-			++cache_misses;
-			return 0;
-		}
-	}
 
 	//Check if valid == 1, Tags Match then Read Hit
 	for(int i = 0; i < tot_ways; i++)
@@ -179,6 +166,19 @@ int cache_read
 		}
 	}
 	
+	//Check if valid == 0.. Yes, then Compulsory Read Miss
+	for(int i = 0; i < tot_ways; i++)
+	{
+		if(s_cache[index].valid[i] == 0)
+		{
+			s_cache[index].valid[i] = 1;
+			s_cache[index].tag[i] = tag;
+			s_cache[index].LRU[i] = 1;
+			++cache_misses;
+			return 0;
+		}
+	}
+
 	//Valid == 1, No Tag Match, Cast Out Victim
 	for(int i = 0; i < tot_ways; i++)
 	{

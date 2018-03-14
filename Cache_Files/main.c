@@ -39,8 +39,7 @@ int main(int argc, char *argv[])
 			"log2(128)\n");
 		return -1;
 	}
-	else if(!(cache_index < 
-		 (32 - (byte_select + byte_select))))
+	else if(!(cache_index < (32 - (byte_select))))
 	{
 		printf("Total Cache Sets Out of Range!\n"
 			"Bits Allocated to Cache are Exceeding "
