@@ -98,7 +98,8 @@ int cache_write
 	{
 		//Cast Out LRU victim
 		if((s_cache[index].LRU[i] == 0) &&
-		   (s_cache[index].tag[i] != tag))
+		   (s_cache[index].tag[i] != tag) &&
+		   (s_cache[index].valid[i] == 1))
 		{
 			s_cache[index].tag[i] = tag;
 			s_cache[index].LRU[i] = 1;
@@ -184,7 +185,8 @@ int cache_read
 	{
 		//Cast Out Victim based on LRU Policy
 		if((s_cache[index].LRU[i] == 0) && 
-		   (s_cache[index].tag[i] != tag))
+		   (s_cache[index].tag[i] != tag) &&
+		   (s_cache[index].valid[i] == 1))
 		{
 			s_cache[index].tag[i] = tag;
 			s_cache[index].LRU[i] = 1;
