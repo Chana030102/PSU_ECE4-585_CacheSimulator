@@ -46,24 +46,6 @@ int cache_write
 )
 {
 	int LRU_counter = 0;
-
-	//first check LRU and reset if needed
-	for(int i = 0; i < tot_ways; i++)
-	{
-		if(s_cache[index].LRU[i] == 1)
-		{
-			++LRU_counter;
-		}
-	}
-
-	//if all LRU bits 1, then RESET to 0
-	if(LRU_counter == tot_ways)
-	{
-		for(int i = 0; i < tot_ways; i++)
-		{
-			s_cache[index].LRU[i] = 0;
-		}
-	}
 	
 	//check if valid == 1 and Tags match, Hit for Write
 	for(int i = 0; i < tot_ways; i++)
@@ -93,13 +75,29 @@ int cache_write
 		}
 	}
 
+	//first check LRU and reset if needed
+	for(int j = 0; j < tot_ways; j++)
+	{
+		if(s_cache[index].LRU[j] == 1)
+		{
+			++LRU_counter;
+		}
+	}
+
+	//if all LRU bits 1, then RESET to 0
+	if(LRU_counter == tot_ways)
+	{
+		for(int j = 0; j < tot_ways; j++)
+		{
+			s_cache[index].LRU[j] = 0;
+		}
+	}
+
 	//valid == 1, No Tag match, Miss/Cast Out Victim
 	for(int i = 0; i < tot_ways; i++)
 	{
 		//Cast Out LRU victim
-		if((s_cache[index].LRU[i] == 0) &&
-		   (s_cache[index].tag[i] != tag) &&
-		   (s_cache[index].valid[i] == 1))
+		if(s_cache[index].LRU[i] == 0)
 		{
 			s_cache[index].tag[i] = tag;
 			s_cache[index].LRU[i] = 1;
@@ -136,24 +134,6 @@ int cache_read
 {
 	int LRU_counter = 0;
 
-	//first check LRU and reset if needed
-	for(int i = 0; i < tot_ways; i++)
-	{
-		if(s_cache[index].LRU[i] == 1)
-		{
-			++LRU_counter;
-		}
-	}
-	
-	//Flush LRU bits if needed
-	if(LRU_counter == tot_ways)
-	{
-		for(int i = 0; i < tot_ways; i++)
-		{
-			s_cache[index].LRU[i] = 0;
-		}
-	}
-
 	//Check if valid == 1, Tags Match then Read Hit
 	for(int i = 0; i < tot_ways; i++)
 	{
@@ -179,15 +159,31 @@ int cache_read
 			return 0;
 		}
 	}
+	//first check LRU and reset if needed
+	for(int j = 0; j < tot_ways; j++)
+	{
+		if(s_cache[index].LRU[j] == 1)
+		{
+			++LRU_counter;
+		}
+	}
+	
+	//Flush LRU bits if needed
+	if(LRU_counter == tot_ways)
+	{
+		for(int j = 0; j < tot_ways; j++)
+		{
+			s_cache[index].LRU[j] = 0;
+		}
+	}
 
 	//Valid == 1, No Tag Match, Cast Out Victim
 	for(int i = 0; i < tot_ways; i++)
 	{
 		//Cast Out Victim based on LRU Policy
-		if((s_cache[index].LRU[i] == 0) && 
-		   (s_cache[index].tag[i] != tag) &&
-		   (s_cache[index].valid[i] == 1))
+		if(s_cache[index].LRU[i] == 0)
 		{
+			
 			s_cache[index].tag[i] = tag;
 			s_cache[index].LRU[i] = 1;
 			++cache_misses;
@@ -198,6 +194,7 @@ int cache_read
 			{
 				++cache_writebacks;
 			}
+			s_cache[index].dirty[i] = 0;
 			return 0;
 		}
 	}
