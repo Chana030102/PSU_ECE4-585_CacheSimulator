@@ -1,0 +1,193 @@
+
+f sets: 64
+Associativiy: 1
+Cache line size(bytes): 64
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 92546
+Number of Cache Misses: 7454
+Cache Hit Ratio: 92.55%
+Cache Miss Ratio: 7.45%
+Number of Evictions: 7390
+Number of Writebacks: 0
+
+===============================================
+
+
+Number of sets: 128
+Associativiy: 1
+Cache line size(bytes): 64
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 94016
+Number of Cache Misses: 5984
+Cache Hit Ratio: 94.02%
+Cache Miss Ratio: 5.98%
+Number of Evictions: 5856
+Number of Writebacks: 0
+
+===============================================
+
+
+Number of sets: 256
+Associativiy: 1
+Cache line size(bytes): 64
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 95117
+Number of Cache Misses: 4883
+Cache Hit Ratio: 95.12%
+Cache Miss Ratio: 4.88%
+Number of Evictions: 4627
+Number of Writebacks: 0
+
+===============================================
+
+
+Associativiy: 1
+Cache line size(bytes): 64
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 96864
+Number of Cache Misses: 3136
+Cache Hit Ratio: 96.86%
+Cache Miss Ratio: 3.14%
+Number of Evictions: 2649
+Number of Writebacks: 0
+
+===============================================
+
+Number of sets: 64
+Associativiy: 1
+Cache line size(bytes): 64
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 92546
+Number of Cache Misses: 7454
+Cache Hit Ratio: 92.55%
+Cache Miss Ratio: 7.45%
+Number of Evictions: 7390
+Number of Writebacks: 0
+
+===============================================
+
+Associativiy: 2
+Cache line size(bytes): 64
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 92795
+Number of Cache Misses: 7205
+Cache Hit Ratio: 92.80%
+Cache Miss Ratio: 7.20%
+Number of Evictions: 7141
+Number of Writebacks: 0
+
+===============================================
+
+
+Number of sets: 16
+Associativiy: 4
+Cache line size(bytes): 64
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 93006
+Number of Cache Misses: 6994
+Cache Hit Ratio: 93.01%
+Cache Miss Ratio: 6.99%
+Number of Evictions: 6930
+Number of Writebacks: 0
+
+===============================================
+
+
+Number of sets: 8
+Associativiy: 8
+Cache line size(bytes): 64
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 93241
+Number of Cache Misses: 6759
+Cache Hit Ratio: 93.24%
+Cache Miss Ratio: 6.76%
+Number of Evictions: 6695
+Number of Writebacks: 0
+
+===============================================
+
+
+Number of sets: 128
+Associativiy: 1
+Cache line size(bytes): 32
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 88488
+Number of Cache Misses: 11512
+Cache Hit Ratio: 88.49%
+Cache Miss Ratio: 11.51%
+Number of Evictions: 11384
+Number of Writebacks: 0
+
+===============================================
+
+Number of sets: 64
+Associativiy: 1
+Cache line size(bytes): 64
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 92546
+Number of Cache Misses: 7454
+Cache Hit Ratio: 92.55%
+Cache Miss Ratio: 7.45%
+Number of Evictions: 7390
+Number of Writebacks: 0
+
+===============================================
+
+
+Number of sets: 32
+Associativiy: 1
+Cache line size(bytes): 128
+========== Cache Performance Results ==========
+
+Total Cache Accesses: 100000
+Number of Cache Reads: 100000
+Number of Cache Writes: 0
+Number of Cache Hits: 94705
+Number of Cache Misses: 5295
+Cache Hit Ratio: 94.70%
+Cache Miss Ratio: 5.30%
+Number of Evictions: 5263
+Number of Writebacks: 0
+
+===============================================
+
